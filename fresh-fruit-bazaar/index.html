@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fresh Fruit Bazaar - POS & Admin Panel</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Main Dashboard Layout -->
+    <div class="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-lemon"></i>
+                </div>
+                <h2>Fresh Fruit<span>Bazaar</span></h2>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-btn active" id="btn-pos" onclick="switchTab('pos')">
+                    <i class="fa-solid fa-cash-register"></i>
+                    <span>POS Billing</span>
+                </button>
+                <button class="nav-btn" id="btn-inventory" onclick="switchTab('inventory')">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Manage Menu</span>
+                </button>
+                <button class="nav-btn" id="btn-reports" onclick="switchTab('reports')">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Sales Reports</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="theme-toggle" class="theme-btn" onclick="toggleTheme()">
+                    <i class="fa-solid fa-sun icon-light"></i>
+                    <i class="fa-solid fa-moon icon-dark"></i>
+                    <span id="theme-text">Light Mode</span>
+                </button>
+                <div class="datetime">
+                    <div id="current-time">12:00:00 PM</div>
+                    <div id="current-date">Friday, June 5, 2026</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title">
+                    <h1 id="page-title">POS Billing Dashboard</h1>
+                    <p id="page-subtitle">Add fresh fruits to cart and checkout instantly.</p>
+                </div>
+                <div class="search-bar" id="search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-input" placeholder="Search fruits by name..." oninput="filterFruits(this.value)">
+                </div>
+            </header>
+
+            <!-- Content Screens -->
+            <div class="screen-container">
+                
+                <!-- SCREEN 1: POS / BILLING -->
+                <section id="screen-pos" class="screen active">
+                    <div class="pos-layout">
+                        <!-- Left Panel: Grid of Fruits -->
+                        <div class="fruits-grid-container">
+                            <div class="categories-bar">
+                                <button class="category-chip active" onclick="filterCategory('all')">All Fruits</button>
+                                <button class="category-chip" onclick="filterCategory('citrus')">Citrus</button>
+                                <button class="category-chip" onclick="filterCategory('berries')">Berries</button>
+                                <button class="category-chip" onclick="filterCategory('tropical')">Tropical</button>
+                                <button class="category-chip" onclick="filterCategory('stone')">Stone Fruits</button>
+                            </div>
+                            <div class="fruits-grid" id="fruits-grid">
+                                <!-- Dynamic Fruit Cards will go here -->
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Cart Receipt Panel -->
+                        <div class="cart-panel">
+                            <div class="cart-header">
+                                <h3>Active Cart</h3>
+                                <button class="clear-btn" onclick="clearCart()">
+                                    <i class="fa-solid fa-trash-can"></i> Clear
+                                </button>
+                            </div>
+                            
+                            <div class="cart-items" id="cart-items">
+                                <!-- Cart items will be loaded dynamically -->
+                                <div class="empty-cart-state">
+                                    <i class="fa-solid fa-basket-shopping"></i>
+                                    <p>Cart is empty</p>
+                                    <span>Click on fruits to add them here</span>
+                                </div>
+                            </div>
+                            
+                            <div class="cart-totals">
+                                <div class="totals-row">
+                                    <span>Subtotal</span>
+                                    <span id="cart-subtotal">₹0.00</span>
+                                </div>
+                                <div class="totals-row">
+                                    <span>GST (5%)</span>
+                                    <span id="cart-tax">₹0.00</span>
+                                </div>
+                                <hr class="totals-divider">
+                                <div class="totals-row grand-total">
+                                    <span>Grand Total</span>
+                                    <span id="cart-total">₹0.00</span>
+                                </div>
+                                
+                                <button class="checkout-btn" onclick="openPaymentModal()" id="btn-checkout" disabled>
+                                    <i class="fa-solid fa-credit-card"></i> Pay Now (QR Code)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SCREEN 2: MANAGE MENU (CRUD) -->
+                <section id="screen-inventory" class="screen">
+                    <div class="admin-layout">
+                        <div class="admin-header-row">
+                            <h3>Fruit Inventory</h3>
+                            <button class="add-fruit-btn" onclick="openAddFruitForm()">
+                                <i class="fa-solid fa-plus"></i> Add New Fruit
+                            </button>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Fruit Name</th>
+                                        <th>Category</th>
+                                        <th>Price (₹)</th>
+                                        <th>Unit</th>
+                                        <th>Stock Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-list">
+                                    <!-- Dynamic rows from script -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SCREEN 3: SALES REPORTS -->
+                <section id="screen-reports" class="screen">
+                    <div class="reports-layout">
+                        <!-- Key Stats Cards -->
+                        <div class="stats-row">
+                            <div class="stat-card">
+                                <div class="stat-icon revenue">
+                                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Total Revenue</span>
+                                    <h2 id="report-total-revenue">₹0.00</h2>
+                                    <p class="stat-subtext">This Month</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon orders">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Total Orders</span>
+                                    <h2 id="report-total-orders">0</h2>
+                                    <p class="stat-subtext">Completed sales</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon quantity">
+                                    <i class="fa-solid fa-weight-hanging"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Fruits Sold</span>
+                                    <h2 id="report-total-fruits">0 kg</h2>
+                                    <p class="stat-subtext">Cumulative weight/units</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts and Ledger -->
+                        <div class="reports-data-grid">
+                            <!-- Popular Items (CSS Chart) -->
+                            <div class="report-box popular-items">
+                                <h3>Best-Selling Fruits</h3>
+                                <div class="bar-chart-container" id="report-chart">
+                                    <!-- Dynamic progress charts will go here -->
+                                </div>
+                            </div>
+                            
+                            <!-- Monthly Sales Summary -->
+                            <div class="report-box sales-history">
+                                <div class="box-header">
+                                    <h3>Sales Log</h3>
+                                    <div class="filter-controls">
+                                        <select id="report-month-filter" onchange="loadSalesReport()">
+                                            <!-- Dynamic months -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="log-table-container">
+                                    <table class="log-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Date & Time</th>
+                                                <th>Items</th>
+                                                <th>Grand Total</th>
+                                                <th>Method</th>
+                                                <th>Receipt</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="sales-log-list">
+                                            <!-- Dynamic sales log -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL 1: ADD/EDIT FRUIT FORM (CRUD) -->
+    <div class="modal" id="fruit-modal">
+        <div class="modal-content fruit-form-modal">
+            <div class="modal-header">
+                <h3 id="form-modal-title">Add New Fruit</h3>
+                <button class="close-modal-btn" onclick="closeFruitModal()">&times;</button>
+            </div>
+            <form id="fruit-form" onsubmit="saveFruit(event)">
+                <input type="hidden" id="form-fruit-id">
+                
+                <div class="form-group">
+                    <label for="form-fruit-name">Fruit Name</label>
+                    <input type="text" id="form-fruit-name" required placeholder="e.g. Red Apple">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="form-fruit-category">Category</label>
+                        <select id="form-fruit-category" required>
+                            <option value="citrus">Citrus</option>
+                            <option value="berries">Berries</option>
+                            <option value="tropical">Tropical</option>
+                            <option value="stone">Stone Fruits</option>
+                            <option value="other" selected>Other / Pomes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-fruit-unit">Unit</label>
+                        <select id="form-fruit-unit" required>
+                            <option value="kg" selected>per kg</option>
+                            <option value="piece">per piece</option>
+                            <option value="pack">per pack</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="form-fruit-price">Price (₹)</label>
+                        <input type="number" id="form-fruit-price" step="0.01" min="0" required placeholder="120">
+                    </div>
+                    <div class="form-group">
+                        <label for="form-fruit-stock">Stock Limit</label>
+                        <input type="number" id="form-fruit-stock" min="0" required placeholder="50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="form-fruit-image">Image URL / Path</label>
+                    <input type="text" id="form-fruit-image" placeholder="images/apple.png">
+                    <span class="help-text">Leave blank to use default placeholder, or provide a URL or local path.</span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="form-btn cancel" onclick="closeFruitModal()">Cancel</button>
+                    <button type="submit" class="form-btn submit">Save Fruit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: QR CODE PAYMENT SCREEN -->
+    <div class="modal" id="payment-modal">
+        <div class="modal-content payment-box-modal">
+            <div class="modal-header">
+                <h3>Scan to Pay</h3>
+                <button class="close-modal-btn" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="payment-body">
+                <div class="payment-summary">
+                    <p class="pay-amount-label">Amount Payable</p>
+                    <h1 id="pay-total-amount">₹0.00</h1>
+                    <p class="store-name"><i class="fa-solid fa-store"></i> Fresh Fruit Bazaar</p>
+                </div>
+
+                <!-- QR Code Display -->
+                <div class="qr-container">
+                    <!-- Dynamic inline SVG will be rendered here -->
+                    <div id="qrcode-svg-container">
+                        <!-- Generates a beautiful vector QR Code dynamically -->
+                    </div>
+                    <div class="qr-pulse-ring"></div>
+                </div>
+                
+                <div class="payment-instruction">
+                    <p><i class="fa-solid fa-mobile-screen-button"></i> Scan this UPI QR code using BHIM, GPay, PhonePe or Paytm</p>
+                    <span class="payment-timer">Session expires in <span id="payment-timer-countdown">05:00</span></span>
+                </div>
+
+                <div class="payment-actions">
+                    <button class="btn-confirm-pay" onclick="processPayment('UPI')">
+                        <i class="fa-solid fa-check"></i> Payment Success (Simulate)
+                    </button>
+                    <button class="btn-cancel-pay" onclick="closePaymentModal()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECEIPT PRINT CONTAINER (HIDDEN ON SCREEN, SHOWN DURING PRINT) -->
+    <div class="print-receipt-wrapper" id="receipt-print-wrapper">
+        <div class="receipt-box">
+            <div class="receipt-header">
+                <h2>FRESH FRUIT BAZAAR</h2>
+                <p>123 Orchard Avenue, Bangalore, KA</p>
+                <p>Tel: +91 98765 43210</p>
+                <div class="divider">================================</div>
+                <p class="receipt-title">TAX INVOICE</p>
+                <div class="divider">================================</div>
+            </div>
+            
+            <div class="receipt-meta">
+                <p><strong>Invoice No:</strong> <span id="rec-id">#TXN-10001</span></p>
+                <p><strong>Date:</strong> <span id="rec-date">05/06/2026 11:50 AM</span></p>
+                <p><strong>Cashier:</strong> POS Terminal 01</p>
+            </div>
+            
+            <div class="divider">--------------------------------</div>
+            
+            <div class="receipt-items-table">
+                <div class="table-header">
+                    <span class="col-item">Item Name</span>
+                    <span class="col-qty">Qty</span>
+                    <span class="col-price">Price</span>
+                    <span class="col-total">Total</span>
+                </div>
+                <div class="divider">--------------------------------</div>
+                <div id="receipt-items-list">
+                    <!-- Dynamic receipt items -->
+                </div>
+            </div>
+            
+            <div class="divider">--------------------------------</div>
+            
+            <div class="receipt-summary">
+                <div class="summary-line">
+                    <span>Subtotal:</span>
+                    <span id="rec-subtotal">₹0.00</span>
+                </div>
+                <div class="summary-line">
+                    <span>CGST (2.5%):</span>
+                    <span id="rec-cgst">₹0.00</span>
+                </div>
+                <div class="summary-line">
+                    <span>SGST (2.5%):</span>
+                    <span id="rec-sgst">₹0.00</span>
+                </div>
+                <div class="divider">--------------------------------</div>
+                <div class="summary-line total">
+                    <span>GRAND TOTAL:</span>
+                    <span id="rec-total">₹0.00</span>
+                </div>
+            </div>
+            
+            <div class="divider">================================</div>
+            <div class="receipt-footer">
+                <p><strong>Payment Mode:</strong> <span id="rec-payment-method">UPI / QR Code</span></p>
+                <br>
+                <p>Thank You For Shopping With Us!</p>
+                <p>Visit Again For Fresh Fruits!</p>
+                <br>
+                <div id="receipt-barcode">
+                    ||||| | |||| | ||| | || ||||
+                </div>
+                <p class="barcode-number" id="rec-barcode-num">TXN10001</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
